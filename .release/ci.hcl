@@ -11,6 +11,7 @@ project "vault" {
     release_branches = [
       "main",
       "release/**",
+      "testing-set-product-version"
     ]
   }
 }
@@ -29,145 +30,13 @@ event "build" {
   }
 }
 
-event "upload-dev" {
+event "prepare" {
   depends = ["build"]
-  action "upload-dev" {
+  action "prepare" {
     organization = "hashicorp"
     repository = "crt-workflows-common"
-    workflow = "upload-dev"
+    workflow = "prepare"
     depends = ["build"]
-  }
-
-  notification {
-    on = "fail"
-  }
-}
-
-event "quality-tests" {
-  depends = ["upload-dev"]
-  action "quality-tests" {
-    organization = "hashicorp"
-    repository = "crt-workflows-common"
-    workflow = "quality-tests"
-  }
-
-  notification {
-    on = "fail"
-  }
-}
-
-event "security-scan-binaries" {
-  depends = ["quality-tests"]
-  action "security-scan-binaries" {
-    organization = "hashicorp"
-    repository = "crt-workflows-common"
-    workflow = "security-scan-binaries"
-    config = "security-scan.hcl"
-  }
-
-  notification {
-    on = "fail"
-  }
-}
-
-event "security-scan-containers" {
-  depends = ["security-scan-binaries"]
-  action "security-scan-containers" {
-    organization = "hashicorp"
-    repository = "crt-workflows-common"
-    workflow = "security-scan-containers"
-    config = "security-scan.hcl"
-  }
-
-  notification {
-    on = "fail"
-  }
-}
-
-event "notarize-darwin-amd64" {
-  depends = ["security-scan-containers"]
-  action "notarize-darwin-amd64" {
-    organization = "hashicorp"
-    repository = "crt-workflows-common"
-    workflow = "notarize-darwin-amd64"
-  }
-
-  notification {
-    on = "fail"
-  }
-}
-
-event "notarize-darwin-arm64" {
-  depends = ["notarize-darwin-amd64"]
-  action "notarize-darwin-arm64" {
-    organization = "hashicorp"
-    repository = "crt-workflows-common"
-    workflow = "notarize-darwin-arm64"
-  }
-
-  notification {
-    on = "fail"
-  }
-}
-
-event "notarize-windows-386" {
-  depends = ["notarize-darwin-arm64"]
-  action "notarize-windows-386" {
-    organization = "hashicorp"
-    repository = "crt-workflows-common"
-    workflow = "notarize-windows-386"
-  }
-
-  notification {
-    on = "fail"
-  }
-}
-
-event "notarize-windows-amd64" {
-  depends = ["notarize-windows-386"]
-  action "notarize-windows-amd64" {
-    organization = "hashicorp"
-    repository = "crt-workflows-common"
-    workflow = "notarize-windows-amd64"
-  }
-
-  notification {
-    on = "fail"
-  }
-}
-
-event "sign" {
-  depends = ["notarize-windows-amd64"]
-  action "sign" {
-    organization = "hashicorp"
-    repository = "crt-workflows-common"
-    workflow = "sign"
-  }
-
-  notification {
-    on = "fail"
-  }
-}
-
-event "sign-linux-rpms" {
-  depends = ["sign"]
-  action "sign-linux-rpms" {
-    organization = "hashicorp"
-    repository = "crt-workflows-common"
-    workflow = "sign-linux-rpms"
-  }
-
-  notification {
-    on = "fail"
-  }
-}
-
-event "verify" {
-  depends = ["sign-linux-rpms"]
-  action "verify" {
-    organization = "hashicorp"
-    repository = "crt-workflows-common"
-    workflow = "verify"
   }
 
   notification {
