@@ -18,12 +18,12 @@ function build_date() {
 
 # Get the version formatted for Debian and RHEL packages
 function version_package() {
-    : "${VAULT_VERSION:=""}"
-    if [ -z "$VAULT_VERSION" ]; then
-      echo "You must specify the VAULT_VERSION variable for this command" >&2
-      exit 1
-    fi
-  $VAULT_VERSION | awk '{ gsub("-","~",$1); print $1 }'
+  : "${VAULT_VERSION:=""}"
+  if [ -z "$VAULT_VERSION" ]; then
+    echo "You must specify the VAULT_VERSION variable for this command" >&2
+    exit 1
+  fi
+  echo $VAULT_VERSION | awk '{ gsub("-","~",$1); print $1 }'
 }
 
 # Get the revision, which is the latest commit SHA
