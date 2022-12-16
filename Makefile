@@ -309,6 +309,10 @@ enos-get-version-base:
 enos-get-version-pre:
 	@$(CURDIR)/scripts/enos-local.sh version-pre
 
+.PHONY: ci-get-version-package
+ci-get-version-package:
+	@$(CURDIR)/scripts/ci-helper.sh version-package
+
 .PHONY: enos-get-version-meta
 enos-get-version-meta:
 	@$(CURDIR)/scripts/enos-local.sh version-meta

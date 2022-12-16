@@ -16,6 +16,16 @@ function build_date() {
   git show --no-show-signature -s --format=%cd --date=format:"$DATE_FORMAT" HEAD
 }
 
+# Get the version formatted for Debian and RHEL packages
+function version_package() {
+    : "${VAULT_VERSION:=""}"
+    if [ -z "$VAULT_VERSION" ]; then
+      echo "You must specify the VAULT_VERSION variable for this command" >&2
+      exit 1
+    fi
+  $VAULT_VERSION | awk '{ gsub("-","~",$1); print $1 }'
+}
+
 # Get the revision, which is the latest commit SHA
 function build_revision() {
   git rev-parse HEAD
@@ -198,6 +208,9 @@ function main() {
   revision)
     build_revision
   ;;
+  version-package)
+    version_package
+  ;;
   *)
     echo "unknown sub-command" >&2
     exit 1
@@ -206,4 +219,3 @@ function main() {
 }
 
 main "$@"
-

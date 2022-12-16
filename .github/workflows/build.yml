@@ -32,6 +32,7 @@ jobs:
       matrix-test-group: ${{ steps.get-metadata.outputs.matrix-test-group }}
       package-name: ${{ steps.get-metadata.outputs.package-name }}
       vault-revision: ${{ steps.get-metadata.outputs.vault-revision }}
+      vault-version-package: ${{ steps.get-metadata.outputs.vault-version-package }}
     steps:
       - uses: actions/checkout@v3
       - name: Get metadata
@@ -41,6 +42,7 @@ jobs:
           # test group. It should be set to the highest test_group used in the
           # enos-run-matrices.
           MATRIX_MAX_TEST_GROUPS: 5
+          VAULT_VERSION: ${{ needs.set-product-version.outputs.vault-version }}
         run: |
           echo "build-date=$(make ci-get-date)" >> $GITHUB_OUTPUT
           echo "go-version=$(cat ./.go-version)" >> $GITHUB_OUTPUT
@@ -48,6 +50,7 @@ jobs:
           echo "package-name=vault" >> $GITHUB_OUTPUT
           echo "vault-base-version=$(make ci-get-version-base)" >> $GITHUB_OUTPUT
           echo "vault-revision=$(make ci-get-revision)" >> $GITHUB_OUTPUT
+          echo "vault-version-package=$(make ci-get-version-package)" >> $GITHUB_OUTPUT
       - uses: hashicorp/actions-generate-metadata@v1
         id: generate-metadata-file
         with:
