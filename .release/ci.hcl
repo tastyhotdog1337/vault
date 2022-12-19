@@ -45,7 +45,7 @@ event "prepare" {
 }
 
 event "enos-release-testing-oss" {
-  depends = ["verify"]
+  depends = ["prepare"]
   action "enos-release-testing-oss" {
     organization = "hashicorp"
     repository = "vault"

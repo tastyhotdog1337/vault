@@ -21,6 +21,12 @@ jobs:
         id: set-product-version
         uses: hashicorp/actions-set-product-version@v1
 
+  save-crt-metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Persist metadata
+        uses: hashicorp/actions-persist-metadata@v1
+
   product-metadata:
     if: ${{ startsWith(github.event.client_payload.payload.branch, 'release/') }}
     runs-on: ubuntu-latest
