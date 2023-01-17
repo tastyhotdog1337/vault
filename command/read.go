@@ -1,6 +1,7 @@
 package command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -77,6 +78,10 @@ func (c *ReadCommand) Run(args []string) int {
 		return 2
 	}
 
+	// client.ReadRaw* methods require a manual timeout override
+	ctx, cancel := context.WithTimeout(context.Background(), client.ClientTimeout())
+	defer cancel()
+
 	// Pull our fake stdin if needed
 	stdin := (io.Reader)(os.Stdin)
 	if c.testStdin != nil {
@@ -91,7 +96,7 @@ func (c *ReadCommand) Run(args []string) int {
 		return 1
 	}
 
-	secret, err := client.Logical().ReadWithData(path, data)
+	secret, err := client.Logical().ReadWithDataWithContext(ctx, path, data)
 	if err != nil {
 		c.UI.Error(fmt.Sprintf("Error reading %s: %s", path, err))
 		return 2
