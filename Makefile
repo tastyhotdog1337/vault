@@ -297,28 +297,8 @@ ci-get-revision:
 ci-prepare-legal:
 	@$(CURDIR)/scripts/ci-helper.sh prepare-legal
 
-.PHONY: enos-get-version
-enos-get-version:
-	@$(CURDIR)/scripts/enos-local.sh version
-
-.PHONY: enos-get-version-base
-enos-get-version-base:
-	@$(CURDIR)/scripts/enos-local.sh version-base
-
-.PHONY: enos-get-version-pre
-enos-get-version-pre:
-	@$(CURDIR)/scripts/enos-local.sh version-pre
-
 .PHONY: ci-get-version-package
 ci-get-version-package:
 	@$(CURDIR)/scripts/ci-helper.sh version-package
-
-.PHONY: enos-get-version-meta
-enos-get-version-meta:
-	@$(CURDIR)/scripts/enos-local.sh version-meta
-
-.PHONY: enos-bundle
-enos-bundle:
-	@$(CURDIR)/scripts/enos-local.sh bundle
 
 

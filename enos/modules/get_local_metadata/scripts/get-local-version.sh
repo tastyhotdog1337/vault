@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# The enos-local-builder is used by Enos for artifact_source:local scenario variants.
-
 set -euo pipefail
 
 # Get the full version information
@@ -72,31 +70,11 @@ function repo_root() {
   git rev-parse --show-toplevel
 }
 
-# Bundle the dist directory
-# this is done by the actions-go-build action so only needed for enos local builds
-function bundle() {
-  : "${BUNDLE_PATH:=$(repo_root)/vault.zip}"
-  echo "--> Bundling dist/* to $BUNDLE_PATH"
-  zip -r -j "$BUNDLE_PATH" dist/
-}
-
 # Run Enos local
 function main() {
   case $1 in
-  bundle)
-    bundle
-  ;;
   version)
     version
-  ;;
-  version-base)
-    version_base
-  ;;
-  version-pre)
-    version_pre
-  ;;
-  version-meta)
-    version_metadata
   ;;
   *)
     echo "unknown sub-command" >&2
