@@ -197,12 +197,8 @@ jobs:
     needs:
       - product-metadata
       - build-linux
-<<<<<<< HEAD
     uses: ./.github/workflows/test-run-enos-scenario-matrix.yml
-=======
       - set-product-version
-    uses: ./.github/workflows/enos-run.yml
->>>>>>> a8920254e1... true up with ENT
     strategy:
       fail-fast: false
       matrix:
