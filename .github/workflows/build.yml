@@ -145,7 +145,7 @@ jobs:
           version: ${{ needs.product-metadata.outputs.vault-version }}
           target: default
           arch: ${{ matrix.arch }}
-          zip_artifact_name: ${{ env.PKG_NAME }}_${{ env.version }}_linux_${{ matrix.arch }}.zip
+          zip_artifact_name: vault_${{ env.version }}_linux_${{ matrix.arch }}.zip
           tags: |
             docker.io/hashicorp/${{ github.event.repository.name }}:${{ needs.product-metadata.outputs.vault-version }}
             public.ecr.aws/hashicorp/${{ github.event.repository.name }}:${{ needs.product-metadata.outputs.vault-version }}
@@ -169,7 +169,7 @@ jobs:
            version: ${{ env.version }}
            target: ubi
            arch: ${{ matrix.arch }}
-           zip_artifact_name: ${{ env.PKG_NAME }}_${{ env.version }}_linux_${{ matrix.arch }}.zip
+           zip_artifact_name: vault_${{ env.version }}_linux_${{ matrix.arch }}.zip
            redhat_tag: quay.io/redhat-isv-containers/5f89bb5e0b94cf64cfeb500a:${{ env.version }}-ubi
 
   test:
