@@ -10,20 +10,7 @@ on:
       - testing-set-product-version
 
 jobs:
-  set-product-version:
-    runs-on: ubuntu-latest
-    outputs:
-      vault-version: ${{ steps.set-product-version.outputs.product-version }}
-      vault-base-version: ${{ steps.set-product-version.outputs.base-product-version }}
-      vault-prerelease-version: ${{ steps.set-product-version.outputs.prerelease-product-version }}
-      vault-minor-version: ${{ steps.set-product-version.outputs.minor-product-version }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set Product version
-        id: set-product-version
-        uses: hashicorp/actions-set-product-version@v1
   product-metadata:
-    needs: set-product-version
     runs-on: ubuntu-latest
     outputs:
       build-date: ${{ steps.get-metadata.outputs.build-date }}
@@ -33,8 +20,15 @@ jobs:
       package-name: ${{ steps.get-metadata.outputs.package-name }}
       vault-revision: ${{ steps.get-metadata.outputs.vault-revision }}
       vault-version-package: ${{ steps.get-metadata.outputs.vault-version-package }}
+      vault-version: ${{ steps.set-product-version.outputs.product-version }}
+      vault-base-version: ${{ steps.set-product-version.outputs.base-product-version }}
+      vault-prerelease-version: ${{ steps.set-product-version.outputs.prerelease-product-version }}
+      vault-minor-version: ${{ steps.set-product-version.outputs.minor-product-version }}
     steps:
       - uses: actions/checkout@v3
+      - name: Set Product version
+        id: set-product-version
+        uses: hashicorp/actions-set-product-version@v1
       - name: Get metadata
         id: get-metadata
         env:
@@ -42,7 +36,7 @@ jobs:
           # test group. It should be set to the highest test_group used in the
           # enos-run-matrices.
           MATRIX_MAX_TEST_GROUPS: 5
-          VAULT_VERSION: ${{ needs.set-product-version.outputs.vault-version }}
+          VAULT_VERSION: ${{ steps.set-product-version.outputs.vault-version }}
         run: |
           echo "build-date=$(make ci-get-date)" >> $GITHUB_OUTPUT
           echo "go-version=$(cat ./.go-version)" >> $GITHUB_OUTPUT
@@ -54,7 +48,7 @@ jobs:
       - uses: hashicorp/actions-generate-metadata@v1
         id: generate-metadata-file
         with:
-          version: ${{ needs.set-product-version.outputs.vault-version }}
+          version: ${{ steps.set-product-version.outputs.vault-version }}
           product: ${{ steps.get-metadata.outputs.package-name }}
       - uses: actions/upload-artifact@v3
         with:
@@ -65,7 +59,6 @@ jobs:
   build-other:
      name: Build Vault Other
      needs:
-       - set-product-version
        - product-metadata
      strategy:
        matrix:
@@ -87,15 +80,14 @@ jobs:
        go-tags: ui
        go-version: ${{ needs.product-metadata.outputs.go-version }}
        package-name: ${{ needs.product-metadata.outputs.package-name }}
-       vault-version: ${{ needs.set-product-version.outputs.vault-version }}
-       vault-base-version: ${{ needs.set-product-version.outputs.vault-base-version }}
-       vault-prerelease-version: ${{ needs.set-product-version.outputs.vault-prerelease-version }}
+       vault-version: ${{ needs.product-metadata.outputs.vault-version }}
+       vault-base-version: ${{ needs.product-metadata.outputs.vault-base-version }}
+       vault-prerelease-version: ${{ needs.product-metadata.outputs.vault-prerelease-version }}
      secrets: inherit
 
   build-linux:
     name: Build Vault Linux
     needs:
-      - set-product-version
       - product-metadata
     strategy:
       matrix:
@@ -109,15 +101,14 @@ jobs:
       go-tags: ui
       go-version: ${{ needs.product-metadata.outputs.go-version }}
       package-name: ${{ needs.product-metadata.outputs.package-name }}
-      vault-version: ${{ needs.set-product-version.outputs.vault-version }}
-      vault-base-version: ${{ needs.set-product-version.outputs.vault-base-version }}
-      vault-prerelease-version: ${{ needs.set-product-version.outputs.vault-prerelease-version }}
+      vault-version: ${{ needs.product-metadata.outputs.vault-version }}
+      vault-base-version: ${{ needs.product-metadata.outputs.vault-base-version }}
+      vault-prerelease-version: ${{ needs.product-metadata.outputs.vault-prerelease-version }}
     secrets: inherit
 
   build-darwin:
      name: Build Vault Darwin
      needs:
-     - set-product-version
      - product-metadata
      strategy:
        matrix:
@@ -132,9 +123,9 @@ jobs:
        go-tags: ui netcgo
        go-version: ${{ needs.product-metadata.outputs.go-version }}
        package-name: ${{ needs.product-metadata.outputs.package-name }}
-       vault-version: ${{ needs.set-product-version.outputs.vault-version }}
-       vault-base-version: ${{ needs.set-product-version.outputs.vault-base-version }}
-       vault-prerelease-version: ${{ needs.set-product-version.outputs.vault-prerelease-version }}
+       vault-version: ${{ needs.product-metadata.outputs.vault-version }}
+       vault-base-version: ${{ needs.product-metadata.outputs.vault-base-version }}
+       vault-prerelease-version: ${{ needs.product-metadata.outputs.vault-prerelease-version }}
      secrets: inherit
 
   build-docker:
@@ -142,14 +133,13 @@ jobs:
     needs:
       - product-metadata
       - build-linux
-      - set-product-version
     runs-on: ubuntu-latest
     strategy:
       matrix:
         arch: [arm, arm64, 386, amd64]
     env:
       repo: ${{ github.event.repository.name }}
-      version: ${{ needs.set-product-version.outputs.vault-version }}
+      version: ${{ needs.product-metadata.outputs.vault-version }}
     steps:
       - uses: actions/checkout@v3
       - uses: hashicorp/actions-docker-build@v1
@@ -167,14 +157,13 @@ jobs:
      needs:
        - product-metadata
        - build-linux
-       - set-product-version
      runs-on: ubuntu-latest
      strategy:
        matrix:
          arch: [amd64]
      env:
        repo: ${{ github.event.repository.name }}
-       version: ${{ needs.set-product-version.outputs.vault-version }}
+       version: ${{ needs.product-metadata.outputs.vault-version }}
      steps:
        - uses: actions/checkout@v2
        - uses: hashicorp/actions-docker-build@v1
@@ -198,15 +187,14 @@ jobs:
       - product-metadata
       - build-linux
     uses: ./.github/workflows/test-run-enos-scenario-matrix.yml
-      - set-product-version
     strategy:
       fail-fast: false
       matrix:
         include:
           - matrix-file-name: build-github-oss-linux-amd64-zip
-            build-artifact-name: vault_${{ needs.set-product-version.outputs.vault-version }}_linux_amd64.zip
+            build-artifact-name: vault_${{ needs.product-metadata.outputs.vault-version }}_linux_amd64.zip
           - matrix-file-name: build-github-oss-linux-arm64-zip
-            build-artifact-name: vault_${{ needs.set-product-version.outputs.vault-version }}_linux_arm64.zip
+            build-artifact-name: vault_${{ needs.product-metadata.outputs.vault-version }}_linux_arm64.zip
     with:
       build-artifact-name: ${{ matrix.build-artifact-name }}
       matrix-file-name: ${{ matrix.matrix-file-name }}
@@ -214,8 +202,8 @@ jobs:
       vault-edition: oss
       vault-revision: ${{ needs.product-metadata.outputs.vault-revision }}
       ssh-key-name: ${{ github.event.repository.name }}-ci-ssh-key
-      vault-version: ${{ needs.set-product-version.outputs.vault-base-version }}
-      vault-minor-version:  ${{ needs.set-product-version.outputs.vault-minor-version }}
+      vault-version: ${{ needs.product-metadata.outputs.vault-base-version }}
+      vault-minor-version:  ${{ needs.product-metadata.outputs.vault-minor-version }}
     secrets: inherit
 
   test-docker-k8s:
@@ -230,13 +218,12 @@ jobs:
     needs:
       - product-metadata
       - build-docker
-      - set-product-version
     uses: ./.github/workflows/enos-run-k8s.yml
     with:
       artifact-build-date: ${{ needs.product-metadata.outputs.build-date }}
-      artifact-name: ${{ github.event.repository.name }}_default_linux_amd64_${{ needs.set-product-version.outputs.vault-version }}_${{ needs.product-metadata.outputs.vault-revision }}.docker.tar
+      artifact-name: ${{ github.event.repository.name }}_default_linux_amd64_${{ needs.product-metadata.outputs.vault-version }}_${{ needs.product-metadata.outputs.vault-revision }}.docker.tar
       artifact-revision: ${{ needs.product-metadata.outputs.vault-revision }}
-      artifact-version: ${{ needs.set-product-version.outputs.vault-version }}
+      artifact-version: ${{ needs.product-metadata.outputs.vault-version }}
     secrets: inherit
 
   completed-successfully:
