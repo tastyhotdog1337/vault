@@ -36,7 +36,7 @@ jobs:
           # test group. It should be set to the highest test_group used in the
           # enos-run-matrices.
           MATRIX_MAX_TEST_GROUPS: 5
-          VAULT_VERSION: ${{ steps.set-product-version.outputs.vault-version }}
+          VAULT_VERSION: ${{ steps.set-product-version.outputs.product-version }}
         run: |
           echo "build-date=$(make ci-get-date)" >> $GITHUB_OUTPUT
           echo "go-version=$(cat ./.go-version)" >> $GITHUB_OUTPUT
@@ -48,7 +48,7 @@ jobs:
       - uses: hashicorp/actions-generate-metadata@v1
         id: generate-metadata-file
         with:
-          version: ${{ steps.set-product-version.outputs.vault-version }}
+          version: ${{ steps.set-product-version.outputs.product-version }}
           product: ${{ steps.get-metadata.outputs.package-name }}
       - uses: actions/upload-artifact@v3
         with:
