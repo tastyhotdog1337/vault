@@ -72,7 +72,7 @@ jobs:
       MATRIX_FILE: ./.github/enos-run-matrices/${{ inputs.matrix-file-name }}.json
       MATRIX_TEST_GROUP: ${{ inputs.matrix-test-group }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
         with:
           ref: ${{ inputs.vault-revision }}
       - id: metadata
@@ -106,7 +106,7 @@ jobs:
       ENOS_VAR_vault_license_path: ./support/vault.hclic
       ENOS_DEBUG_DATA_ROOT_DIR: ./enos/support/debug-data
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
       - uses: hashicorp/setup-terraform@v2
         with:
           # the Terraform wrapper will break Terraform execution in Enos because

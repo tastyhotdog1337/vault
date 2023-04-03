@@ -47,7 +47,7 @@ jobs:
     container:
       image: returntocorp/semgrep@sha256:ffc6f3567654f9431456d49fd059dfe548f007c494a7eb6cd5a1a3e50d813fb3
     steps:
-    - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+    - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
     - name: Run Semgrep Rules
       id: semgrep
       run: semgrep ci --include '*.go' --config 'tools/semgrep/ci'
@@ -65,7 +65,7 @@ jobs:
     - setup
     runs-on: ${{ fromJSON(needs.setup.outputs.compute-tiny) }}
     steps:
-    - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+    - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
     - uses: actions/setup-go@d0a58c1c4d2b25278816e339b944508c875f3613
       with:
         go-version-file: ./.go-version
@@ -85,7 +85,7 @@ jobs:
     if: ${{ needs.setup.outputs.enterprise != '' && github.base_ref != '' }}
     runs-on: ${{ fromJSON(needs.setup.outputs.compute-tiny) }}
     steps:
-    - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+    - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
       with:
         fetch-depth: 0
     - id: determine-branch
@@ -196,7 +196,7 @@ jobs:
       contents: read
     runs-on: ${{ fromJSON(needs.setup.outputs.compute-larger) }}
     steps:
-    - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+    - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
     - uses: actions/setup-go@d0a58c1c4d2b25278816e339b944508c875f3613
       with:
         go-version-file: ./.go-version
